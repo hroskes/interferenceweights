@@ -1,4 +1,9 @@
 from abc import ABCMeta, abstractproperty
+from itertools import product as cartesianproduct
+import operator
+
+def product(iterable):
+    return reduce(operator.mul, iterable, 1)
 
 from extendedcounter import ExtendedCounter
 from weightshelper import WeightsHelper
@@ -19,6 +24,9 @@ class SumOfSamplesBase(object):
     return self * scalar
   def __div__(self, scalar):
     return SumOfSamples(self.samplesandfactors / scalar)
+  @property
+  def weight_terms(self):
+    return [self.weight_terms_expanded]
   @property
   def weight_terms_expanded(self):
     terms = [(weight, weightfactor*factor) for s, factor in self.samplesandfactors.iteritems() for weight, weightfactor in s.weight_terms_expanded]
@@ -54,9 +62,6 @@ class SumOfSamples(SumOfSamplesBase):
     self.__samplesandfactors = samplesandfactors
   @property
   def samplesandfactors(self): return self.__samplesandfactors
-
-  @property
-  def samplesandfactors(self): return ExtendedCounter({self: 1})
 
 class Sample(SumOfSamplesBase):
     def __init__(self, productionmode, **kwargs):
